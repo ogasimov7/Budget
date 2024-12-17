@@ -7,191 +7,123 @@ struct HomeView: View {
     @State private var showingAddDeposit = false
     @State private var showingAddPayment = false
     
-    private var totalBalance: Double {
-        accountVM.totalBalance
-    }
-    
-    private var monthlyDeposits: Double {
-        transactionVM.currentMonthDeposits
-    }
-    
-    private var spent: Double {
-        transactionVM.currentMonthSpending
-    }
-    
-    private var spendingProgress: Double {
-        guard monthlyDeposits > 0 else { return 0 }
-        return min(spent / monthlyDeposits, 1.0)
-    }
-    
-    private var progressColor: Color {
-        let percentage = spendingProgress
-        if percentage < 0.5 {
-            return .green
-        } else if percentage < 0.8 {
-            return .yellow
-        } else {
-            return .red
-        }
-    }
-    
     var body: some View {
         NavigationView {
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 24) {
-                    // Balans kartı
-                    VStack(spacing: 20) {
-                        // Balans
+            ScrollView {
+                VStack(spacing: 20) {
+                    // Balance Card
+                    VStack(spacing: 16) {
                         VStack(spacing: 8) {
                             Text("Ümumi Balans")
-                                .font(.system(size: 15, weight: .medium, design: .rounded))
-                                .foregroundColor(.secondary)
-                            Text("$\(totalBalance, specifier: "%.2f")")
-                                .font(.system(size: 40, weight: .bold, design: .rounded))
-                                .foregroundColor(.primary)
+                                .font(.subheadline)
+                                .foregroundColor(Theme.secondaryText)
+                            Text("$\(accountVM.totalBalance, specifier: "%.2f")")
+                                .font(.system(size: 34, weight: .bold))
                         }
                         
                         Divider()
-                            .padding(.horizontal)
                         
-                        // Xərc limiti indikatoru
-                        VStack(spacing: 12) {
-                            HStack {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text("Xərc limiti")
-                                        .font(.system(size: 15, weight: .medium, design: .rounded))
-                                        .foregroundColor(.secondary)
-                                    Text("$\(monthlyDeposits, specifier: "%.2f")")
-                                        .font(.system(size: 20, weight: .bold, design: .rounded))
-                                }
-                                Spacer()
-                                VStack(alignment: .trailing, spacing: 4) {
-                                    Text("İstifadə edilib")
-                                        .font(.system(size: 15, weight: .medium, design: .rounded))
-                                        .foregroundColor(.secondary)
-                                    Text("$\(spent, specifier: "%.2f")")
-                                        .font(.system(size: 20, weight: .bold, design: .rounded))
-                                        .foregroundColor(progressColor)
-                                }
+                        HStack {
+                            VStack(alignment: .leading) {
+                                Text("Xərc limiti")
+                                    .font(.subheadline)
+                                    .foregroundColor(Theme.secondaryText)
+                                Text("$\(transactionVM.currentMonthDeposits, specifier: "%.2f")")
+                                    .font(.headline)
                             }
-                            
-                            // Progress Bar
-                            GeometryReader { geometry in
-                                ZStack(alignment: .leading) {
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .fill(Color(.systemGray6))
-                                        .frame(height: 16)
-                                    
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .fill(progressColor)
-                                        .frame(width: geometry.size.width * spendingProgress, height: 16)
-                                }
+                            Spacer()
+                            VStack(alignment: .trailing) {
+                                Text("İstifadə edilib")
+                                    .font(.subheadline)
+                                    .foregroundColor(Theme.secondaryText)
+                                Text("$\(transactionVM.currentMonthSpending, specifier: "%.2f")")
+                                    .font(.headline)
                             }
-                            .frame(height: 16)
                         }
                     }
-                    .padding(24)
-                    .background(Color(.systemBackground))
-                    .cornerRadius(24)
-                    .shadow(color: Color.black.opacity(0.05), radius: 15)
+                    .cardStyle()
+                    .padding(.horizontal)
                     
-                    // Əməliyyat düymələri
+                    // Action Buttons
                     HStack(spacing: 16) {
                         Button(action: { showingAddPayment = true }) {
                             VStack(spacing: 12) {
-                                ZStack {
-                                    Circle()
-                                        .fill(Color.red.opacity(0.1))
-                                        .frame(width: 56, height: 56)
-                                    Image(systemName: "arrow.up.right")
-                                        .font(.system(size: 24, weight: .medium))
-                                        .foregroundColor(.red)
-                                }
+                                Circle()
+                                    .fill(Color.red.opacity(0.1))
+                                    .frame(width: 48, height: 48)
+                                    .overlay(
+                                        Image(systemName: "arrow.up.right")
+                                            .foregroundColor(.red)
+                                    )
                                 Text("Xərc")
-                                    .font(.system(size: 15, weight: .medium, design: .rounded))
-                                    .foregroundColor(.primary)
+                                    .font(.subheadline)
                             }
                             .frame(maxWidth: .infinity)
-                            .padding(.vertical, 16)
-                            .background(Color(.systemBackground))
-                            .cornerRadius(16)
-                            .shadow(color: Color.black.opacity(0.05), radius: 8)
+                            .cardStyle()
                         }
                         
                         Button(action: { showingAddDeposit = true }) {
                             VStack(spacing: 12) {
-                                ZStack {
-                                    Circle()
-                                        .fill(Color.green.opacity(0.1))
-                                        .frame(width: 56, height: 56)
-                                    Image(systemName: "plus")
-                                        .font(.system(size: 24, weight: .medium))
-                                        .foregroundColor(.green)
-                                }
+                                Circle()
+                                    .fill(Color.green.opacity(0.1))
+                                    .frame(width: 48, height: 48)
+                                    .overlay(
+                                        Image(systemName: "plus")
+                                            .foregroundColor(.green)
+                                    )
                                 Text("Deposit")
-                                    .font(.system(size: 15, weight: .medium, design: .rounded))
-                                    .foregroundColor(.primary)
+                                    .font(.subheadline)
                             }
                             .frame(maxWidth: .infinity)
-                            .padding(.vertical, 16)
-                            .background(Color(.systemBackground))
-                            .cornerRadius(16)
-                            .shadow(color: Color.black.opacity(0.05), radius: 8)
+                            .cardStyle()
                         }
                     }
+                    .padding(.horizontal)
                     
-                    // Əməliyyatlar siyahısı
+                    // Recent Transactions
                     VStack(alignment: .leading, spacing: 16) {
                         HStack {
                             Text("Son Əməliyyatlar")
-                                .font(.system(size: 20, weight: .bold, design: .rounded))
+                                .font(.headline)
                             Spacer()
                             Button("Hamısı") {
-                                // View All action
+                                // View all action
                             }
-                            .font(.system(size: 15, weight: .medium, design: .rounded))
-                            .foregroundColor(.blue)
+                            .foregroundColor(Theme.accent)
                         }
                         
                         if transactionVM.transactions.isEmpty {
-                            VStack(spacing: 16) {
+                            VStack(spacing: 12) {
                                 Image(systemName: "doc.text")
-                                    .font(.system(size: 48))
-                                    .foregroundColor(.secondary)
+                                    .font(.system(size: 40))
+                                    .foregroundColor(Theme.secondaryText)
                                 Text("Əməliyyat yoxdur")
-                                    .font(.system(size: 17, weight: .medium, design: .rounded))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Theme.secondaryText)
                             }
                             .frame(maxWidth: .infinity)
-                            .padding(.vertical, 40)
+                            .padding(.vertical, 32)
                         } else {
-                            VStack(spacing: 12) {
-                                ForEach(transactionVM.transactions.prefix(5)) { transaction in
-                                    TransactionRow(transaction: transaction)
-                                }
+                            ForEach(transactionVM.transactions.prefix(5)) { transaction in
+                                TransactionRow(transaction: transaction)
+                                    .listRowStyle()
                             }
                         }
                     }
-                    .padding(20)
-                    .background(Color(.systemBackground))
-                    .cornerRadius(24)
+                    .cardStyle()
+                    .padding(.horizontal)
                 }
-                .padding(.horizontal)
-                .padding(.top)
+                .padding(.vertical)
             }
-            .navigationTitle("Büdcə")
-            .navigationBarTitleDisplayMode(.large)
-            .background(Color(.systemGroupedBackground))
-        }
-        .sheet(isPresented: $showingAddDeposit) {
-            AddDepositView(accountVM: accountVM, transactionVM: transactionVM)
-        }
-        .sheet(isPresented: $showingAddPayment) {
-            AddPaymentView(
-                categories: $categoryVM.categories,
-                transactionVM: transactionVM,
-                accountVM: accountVM
-            )
+            .background(Theme.background)
+            .navigationBarTitleDisplayMode(.inline)
+            .sheet(isPresented: $showingAddDeposit) {
+                AddDepositView(accountVM: accountVM, transactionVM: transactionVM)
+            }
+            .sheet(isPresented: $showingAddPayment) {
+                AddPaymentView(categories: $categoryVM.categories,
+                             transactionVM: transactionVM,
+                             accountVM: accountVM)
+            }
         }
     }
 } 
